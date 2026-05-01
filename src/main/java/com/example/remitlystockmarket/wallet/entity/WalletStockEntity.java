@@ -1,7 +1,9 @@
 package com.example.remitlystockmarket.wallet.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -10,7 +12,15 @@ import lombok.Setter;
         uniqueConstraints = @UniqueConstraint(columnNames = {"name", "wallet_id"}))
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class WalletStockEntity {
+
+    public WalletStockEntity(String name, int quantity, WalletEntity wallet) {
+        this.name = name;
+        this.quantity = quantity;
+        this.wallet = wallet;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +35,6 @@ public class WalletStockEntity {
     @ManyToOne
     @JoinColumn(name = "wallet_id", nullable = false)
     private WalletEntity wallet;
+
+
 }

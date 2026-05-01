@@ -1,5 +1,7 @@
 package com.example.remitlystockmarket.stock.service;
 
+import com.example.remitlystockmarket.exception.InsufficientStockException;
+import com.example.remitlystockmarket.exception.ResourceNotFoundException;
 import com.example.remitlystockmarket.stock.dto.StockDto;
 import com.example.remitlystockmarket.stock.entity.BankStockEntity;
 import com.example.remitlystockmarket.stock.repository.BankStockRepository;
@@ -34,5 +36,22 @@ public class BankStockService {
                 .toList();
         bankStockRepository.saveAll(entities);
         return getBankState();
+    }
+
+    public boolean doesStockExist(String name) {
+        return bankStockRepository.existsById(name);
+    }
+
+    public void changeStockQuantity(String name, int delta) {
+        BankStockEntity stock = bankStockRepository.findById(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Stock not found"));
+
+        int currentQuantity = stock.getQuantity();
+        if (currentQuantity + delta < 0) {
+            throw new InsufficientStockException("No stock available");
+        }
+
+        stock.setQuantity(currentQuantity + delta);
+        bankStockRepository.save(stock);
     }
 }
