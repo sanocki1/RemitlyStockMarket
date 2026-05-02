@@ -2,6 +2,7 @@ package com.example.remitlystockmarket.wallet.service;
 
 import com.example.remitlystockmarket.exception.InsufficientStockException;
 import com.example.remitlystockmarket.exception.ResourceNotFoundException;
+import com.example.remitlystockmarket.log.service.LogService;
 import com.example.remitlystockmarket.stock.service.BankStockService;
 import com.example.remitlystockmarket.wallet.dto.WalletStockResponseDto;
 import com.example.remitlystockmarket.wallet.dto.WalletTransactionRequestDto;
@@ -20,11 +21,14 @@ public class WalletService {
     private final WalletRepository walletRepository;
     private final WalletStockRepository walletStockRepository;
     private final BankStockService bankStockService;
+    private final LogService logService;
 
-    public WalletService(WalletRepository walletRepository, WalletStockRepository walletStockRepository, BankStockService bankStockService) {
+    public WalletService(WalletRepository walletRepository, WalletStockRepository walletStockRepository,
+                         BankStockService bankStockService, LogService logService) {
         this.walletRepository = walletRepository;
         this.walletStockRepository = walletStockRepository;
         this.bankStockService = bankStockService;
+        this.logService = logService;
     }
 
     public Optional<WalletStockResponseDto> getWalletById(String walletId) {
@@ -57,9 +61,11 @@ public class WalletService {
         if (transactionDto.type().equals("buy")) {
             bankStockService.changeStockQuantity(stockName, -1);
             changeWalletStockQuantity(wallet, stockName, +1);
+            logService.logTransaction("buy", walletId, stockName);
         } else if (transactionDto.type().equals("sell")) {
             changeWalletStockQuantity(wallet, stockName, -1);
             bankStockService.changeStockQuantity(stockName, +1);
+            logService.logTransaction("sell", walletId, stockName);
         }
     }
 

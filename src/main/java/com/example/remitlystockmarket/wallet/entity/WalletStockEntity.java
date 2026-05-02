@@ -16,12 +16,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class WalletStockEntity {
 
-    public WalletStockEntity(String name, int quantity, WalletEntity wallet) {
-        this.name = name;
-        this.quantity = quantity;
-        this.wallet = wallet;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;  // using this as PK for simplicity, might make a composite key out of name and wallet_id
@@ -36,5 +30,9 @@ public class WalletStockEntity {
     @JoinColumn(name = "wallet_id", nullable = false)
     private WalletEntity wallet;
 
-
+    public WalletStockEntity(String name, int quantity, WalletEntity wallet) {
+        this.name = name;
+        this.quantity = quantity;
+        this.wallet = wallet;
+    }
 }
