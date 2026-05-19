@@ -10,19 +10,24 @@ A simplified Spring Boot stock market app with:
 
 ## Requirements
 
-- Docker Desktop
-- Java 21 JDK only if you want to run it locally without Docker
-- Docker Compose
+- Docker/Docker Desktop
 
 ## Run with Docker
 
-Start the app on a custom local port (XXXX):
+Start the app on a local port 8080:
 
-Windows:
 ```powershell
-$env:APP_PORT=XXXX; docker compose up --build
+docker compose up --build
 ```
-Linux/Mac:
+
+## Shut down the app
+
 ```bash
-APP_PORT=XXXX docker compose up --build
+docker compose down
+```
+
+## Access via Swagger UI
+Open your browser and navigate to:  
+```
+http://localhost:8080/swagger-ui.html
 ```

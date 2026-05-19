@@ -5,6 +5,7 @@ import com.example.remitlystockmarket.exception.ResourceNotFoundException;
 import com.example.remitlystockmarket.stock.dto.StockDto;
 import com.example.remitlystockmarket.stock.entity.BankStockEntity;
 import com.example.remitlystockmarket.stock.repository.BankStockRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class BankStockService {
         return new StockDto(stocks);
     }
 
+    @Transactional
     public StockDto setBankState(StockDto stockDto) {
         bankStockRepository.deleteAll();
         List<BankStockEntity> entities = stockDto.stocks().stream()

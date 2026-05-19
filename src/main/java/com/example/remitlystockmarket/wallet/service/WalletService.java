@@ -31,18 +31,25 @@ public class WalletService {
         this.logService = logService;
     }
 
-    public Optional<WalletStockResponseDto> getWalletById(String walletId) {
-        return walletRepository.findById(walletId)
-                .map(wallet -> {
-                    List<WalletStockEntity> stocks = walletStockRepository.findByWallet_Id(wallet.getId());
-                    List<WalletStockResponseDto.StockItem> stockItems = stocks.stream()
-                            .map(stock -> new WalletStockResponseDto.StockItem(stock.getName(), stock.getQuantity()))
-                            .toList();
-                    return new WalletStockResponseDto(walletId, stockItems);
-                });
+    public WalletStockResponseDto getWalletById(String walletId) {
+        WalletEntity wallet = walletRepository.findById(walletId)
+                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
+
+        List<WalletStockEntity> stocks = walletStockRepository.findByWallet_Id(walletId);
+        List<WalletStockResponseDto.StockItem> stockItems = stocks.stream()
+                .map(stock -> new WalletStockResponseDto.StockItem(stock.getName(), stock.getQuantity()))
+                .toList();
+
+        return new WalletStockResponseDto(wallet.getId(), stockItems);
     }
 
     public int getWalletStockQuantity(String walletId, String stockName) {
+        if (!walletRepository.existsById(walletId)) {
+            throw new ResourceNotFoundException("Wallet not found");
+        }
+        if (!bankStockService.doesStockExist(stockName)) {
+            throw new ResourceNotFoundException("Stock not found");
+        }
         return walletStockRepository
                 .findByWallet_IdAndName(walletId, stockName)
                 .map(WalletStockEntity::getQuantity)
@@ -66,6 +73,8 @@ public class WalletService {
             changeWalletStockQuantity(wallet, stockName, -1);
             bankStockService.changeStockQuantity(stockName, +1);
             logService.logTransaction("sell", walletId, stockName);
+        } else {
+            throw new IllegalArgumentException("Invalid transaction type");
         }
     }
 
