@@ -6,7 +6,6 @@ A simplified Spring Boot stock market app with:
 - wallet buy/sell transactions
 - global error handling
 - transaction logging
-- a high-availability Docker setup with multiple app instances behind Nginx
 
 ## Requirements
 

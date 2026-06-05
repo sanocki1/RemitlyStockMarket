@@ -37,7 +37,8 @@ public class WalletController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved stock quantity"),
             @ApiResponse(responseCode = "404", description = "Wallet or stock not found")
     })
-    public ResponseEntity<Integer> getWalletStockQuantity(@PathVariable String wallet_id, @PathVariable String stock_name) {
+    public ResponseEntity<Integer> getWalletStockQuantity(@PathVariable String wallet_id,
+                                                          @PathVariable String stock_name) {
         Integer walletStockQuantity = walletService.getWalletStockQuantity(wallet_id, stock_name);
         return ResponseEntity.ok(walletStockQuantity);
     }

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,7 @@ public class BankStockController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Set Bank Stock State", description = "Sets the bank's stock inventory to the provided state, overrides the previous state")
     @ApiResponse(responseCode = "200", description = "Successfully updated bank stock state")
     public ResponseEntity<StockDto> setBankState(@RequestBody StockDto stockDto) {
