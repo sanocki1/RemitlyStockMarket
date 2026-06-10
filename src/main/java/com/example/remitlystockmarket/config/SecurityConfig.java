@@ -54,7 +54,7 @@ public class SecurityConfig {
                     authz.requestMatchers("/swagger-ui/**").permitAll();
                     authz.requestMatchers("/v3/api-docs/**").permitAll();
 
-                    authz.requestMatchers(HttpMethod.POST, "/stocks").hasRole("ADMIN");
+                    authz.requestMatchers(HttpMethod.POST, "/stocks/**").hasRole("ADMIN");
 
                     authz.requestMatchers("/chaos/**").hasRole("ADMIN");
 

@@ -1,6 +1,7 @@
 package com.example.remitlystockmarket.stock.service;
 
 import com.example.remitlystockmarket.exception.InsufficientStockException;
+import com.example.remitlystockmarket.exception.ResourceAlreadyExistsException;
 import com.example.remitlystockmarket.exception.ResourceNotFoundException;
 import com.example.remitlystockmarket.stock.dto.StockDto;
 import com.example.remitlystockmarket.stock.entity.BankStockEntity;
@@ -27,7 +28,9 @@ public class BankStockService {
 
     @Transactional
     public StockDto setBankState(StockDto stockDto) {
-        bankStockRepository.deleteAll();
+        if (bankStockRepository.count() > 0) {
+            throw new ResourceAlreadyExistsException("Bank stock state already exists.");
+        }
         List<BankStockEntity> entities = stockDto.stocks().stream()
                 .map(item -> {
                     BankStockEntity entity = new BankStockEntity();
@@ -42,6 +45,15 @@ public class BankStockService {
 
     public boolean doesStockExist(String name) {
         return bankStockRepository.existsById(name);
+    }
+
+    public StockDto addStock(String name, int quantity) {
+        if (doesStockExist(name)) {
+            throw new ResourceAlreadyExistsException("Stock already exists");
+        }
+        BankStockEntity stock = new BankStockEntity(name, quantity);
+        bankStockRepository.save(stock);
+        return getBankState();
     }
 
     public void changeStockQuantity(String name, int delta) {

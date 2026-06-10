@@ -4,6 +4,7 @@ import com.example.remitlystockmarket.stock.dto.StockDto;
 import com.example.remitlystockmarket.stock.service.BankStockService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,12 +28,27 @@ public class BankStockController {
         return ResponseEntity.ok(bankState);
     }
 
-    @PostMapping
+    @PostMapping("/state")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Set Bank Stock State", description = "Sets the bank's stock inventory to the provided state, overrides the previous state")
-    @ApiResponse(responseCode = "200", description = "Successfully updated bank stock state")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully set bank stock state"),
+            @ApiResponse(responseCode = "409", description = "Bank stock state already exists")
+    })
     public ResponseEntity<StockDto> setBankState(@RequestBody StockDto stockDto) {
         StockDto bankState = bankStockService.setBankState(stockDto);
+        return ResponseEntity.ok(bankState);
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Add Stock to Bank Inventory", description = "Adds a new stock to the bank's inventory with the specified quantity")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully added stock to bank inventory"),
+            @ApiResponse(responseCode = "409", description = "Stock already exists in bank inventory")
+    })
+    public ResponseEntity<StockDto> addStock(@RequestParam String name, @RequestParam int quantity) {
+        StockDto bankState = bankStockService.addStock(name, quantity);
         return ResponseEntity.ok(bankState);
     }
 }
