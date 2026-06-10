@@ -1,6 +1,7 @@
 package com.example.remitlystockmarket.unit;
 
 import com.example.remitlystockmarket.exception.InsufficientStockException;
+import com.example.remitlystockmarket.exception.ResourceAlreadyExistsException;
 import com.example.remitlystockmarket.exception.ResourceNotFoundException;
 import com.example.remitlystockmarket.stock.dto.StockDto;
 import com.example.remitlystockmarket.stock.entity.BankStockEntity;
@@ -50,12 +51,13 @@ public class BankStockServiceTest {
     }
 
     @Test
-    @DisplayName("Should set bank stock state")
+    @DisplayName("Should set bank stock state when repository is empty")
     void testSetBankState() {
         StockDto.StockItem item1 = new StockDto.StockItem("AAPL", 100);
         StockDto.StockItem item2 = new StockDto.StockItem("GOOGL", 50);
         StockDto input = new StockDto(List.of(item1, item2));
 
+        when(bankStockRepository.count()).thenReturn(0L);
         when(bankStockRepository.findAll()).thenReturn(List.of(
                 new BankStockEntity("AAPL", 100),
                 new BankStockEntity("GOOGL", 50)
@@ -67,9 +69,49 @@ public class BankStockServiceTest {
         assertEquals(100, result.stocks().get(0).quantity());
         assertEquals("GOOGL", result.stocks().get(1).name());
         assertEquals(50, result.stocks().get(1).quantity());
-        verify(bankStockRepository, times(1)).deleteAll();
+        verify(bankStockRepository, times(1)).count();
         verify(bankStockRepository, times(1)).saveAll(anyList());
         verify(bankStockRepository, times(1)).findAll();
+        }
+
+        @Test
+        @DisplayName("Should throw exception when setting bank stock state with existing state")
+        void testSetBankStateWithExistingState() {
+            StockDto.StockItem item1 = new StockDto.StockItem("AAPL", 100);
+            StockDto input = new StockDto(List.of(item1));
+
+            when(bankStockRepository.count()).thenReturn(1L);
+            assertThrows(ResourceAlreadyExistsException.class, () -> bankStockService.setBankState(input));
+            verify(bankStockRepository, times(1)).count();
+            verify(bankStockRepository, never()).saveAll(anyList());
+        }
+
+        @Test
+        @DisplayName("Should add new stock to bank")
+        void testAddStock() {
+            when(bankStockRepository.existsById("AAPL")).thenReturn(false);
+            when(bankStockRepository.findAll()).thenReturn(List.of(
+                    new BankStockEntity("AAPL", 100)
+            ));
+
+            StockDto result = bankStockService.addStock("AAPL", 100);
+
+            assertEquals(1, result.stocks().size());
+            assertEquals("AAPL", result.stocks().get(0).name());
+            assertEquals(100, result.stocks().get(0).quantity());
+            verify(bankStockRepository, times(1)).existsById("AAPL");
+            verify(bankStockRepository, times(1)).save(any(BankStockEntity.class));
+            verify(bankStockRepository, times(1)).findAll();
+        }
+
+        @Test
+        @DisplayName("Should throw exception when adding stock that already exists")
+        void testAddStockThrowsExceptionWhenStockExists() {
+            when(bankStockRepository.existsById("AAPL")).thenReturn(true);
+
+            assertThrows(ResourceAlreadyExistsException.class, () -> bankStockService.addStock("AAPL", 100));
+            verify(bankStockRepository, times(1)).existsById("AAPL");
+            verify(bankStockRepository, never()).save(any(BankStockEntity.class));
         }
 
         @Test
