@@ -26,7 +26,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    //TODO: idk probably shouldn't store hardcoded data like that instead of a database xdddddddddddddd
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails admin = User.builder()
